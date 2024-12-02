@@ -5,7 +5,7 @@ import Image from 'next/image';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import LoginPage from './auth/login/page';
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 p-4">
       <div className="w-full max-w-md bg-white dark:bg-neutral-800 shadow-md rounded-xl p-8">

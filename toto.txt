@@ -1,0 +1,44 @@
+```
+indigo-guinee/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   ├── password-reset/
+│   │   │   └── first-login/
+│   │   ├── (dashboard)/
+│   │   │   ├── panels/
+│   │   │   ├── campaigns/
+│   │   │   ├── clients/
+│   │   │   └── reports/
+│   │   └── layout.tsx
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   └── ThemeToggle.tsx
+│   │   ├── layout/
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── Header.tsx
+│   │   │   └── Breadcrumbs.tsx
+│   │   └── panels/
+│   │       ├── PanelForm.tsx
+│   │       └── PanelList.tsx
+│   ├── lib/
+│   │   ├── auth.ts
+│   │   ├── theme.ts
+│   │   └── utils.ts
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   └── useTheme.ts
+│   ├── styles/
+│   │   └── globals.css
+│   └── types/
+│       ├── panel.ts
+│       ├── campaign.ts
+│       └── user.ts
+├── tailwind.config.ts
+├── next.config.js
+└── package.json
+```

@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { 
-  DownloadIcon, 
-  PrinterIcon, 
-  FileTextIcon, 
+import {
+  DownloadIcon,
+  PrinterIcon,
+  FileTextIcon,
   BarChartIcon,
   EyeIcon,
   MoreVerticalIcon
@@ -20,7 +20,7 @@ export default function ReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filtrage des rapports selon le terme de recherche
-  const filteredReports = reports.filter(report => 
+  const filteredReports = reports.filter(report =>
     report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.period.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -42,15 +42,15 @@ export default function ReportsPage() {
           Rapports
         </h1>
         <div className="flex space-x-2">
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             icon={<DownloadIcon />}
             onClick={() => handleExport('pdf')}
           >
             Exporter PDF
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             icon={<DownloadIcon />}
             onClick={() => handleExport('excel')}
           >
@@ -62,7 +62,7 @@ export default function ReportsPage() {
       {/* Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow">
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
-          <Input 
+          <Input
             type="text"
             placeholder="Rechercher des rapports"
             value={searchTerm}
@@ -81,8 +81,8 @@ export default function ReportsPage() {
           </thead>
           <tbody>
             {filteredReports.map((report) => (
-              <tr 
-                key={report.id} 
+              <tr
+                key={report.id}
                 className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
               >
                 <td className="p-4 flex items-center">
@@ -118,9 +118,9 @@ export default function ReportsPage() {
                           Campagnes: {report.totalCampaigns ?? 'N/A'}
                         </span>
                         <span className="text-green-600">
-                          Revenus: {new Intl.NumberFormat('fr-FR', { 
-                            style: 'currency', 
-                            currency: 'GNF' 
+                          Revenus: {new Intl.NumberFormat('fr-FR', {
+                            style: 'currency',
+                            currency: 'GNF'
                           }).format(report.revenueGenerated ?? 0)}
                         </span>
                       </>
@@ -129,16 +129,16 @@ export default function ReportsPage() {
                 </td>
                 <td className="p-4">
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       icon={<EyeIcon className="w-4 h-4" />}
                       onClick={() => handleViewDetails(report)}
                     >
                       Détails
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       icon={<MoreVerticalIcon className="w-4 h-4" />}
                     >
@@ -154,8 +154,8 @@ export default function ReportsPage() {
 
       {/* Report Details Modal */}
       {selectedReport && (
-        <Modal 
-          isOpen={isModalOpen} 
+        <Modal
+          isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           title={`Détails du Rapport: ${selectedReport.type}`}
         >
@@ -189,9 +189,9 @@ export default function ReportsPage() {
                 <div>
                   <p className="font-semibold">Revenus Générés</p>
                   <p className="text-green-600">
-                    {new Intl.NumberFormat('fr-FR', { 
-                      style: 'currency', 
-                      currency: 'GNF' 
+                    {new Intl.NumberFormat('fr-FR', {
+                      style: 'currency',
+                      currency: 'GNF'
                     }).format(selectedReport.revenueGenerated ?? 0)}
                   </p>
                 </div>

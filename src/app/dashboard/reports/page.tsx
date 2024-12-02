@@ -2,9 +2,7 @@
 import { useState } from 'react';
 import {
   DownloadIcon,
-  PrinterIcon,
   FileTextIcon,
-  BarChartIcon,
   EyeIcon,
   MoreVerticalIcon
 } from 'lucide-react';

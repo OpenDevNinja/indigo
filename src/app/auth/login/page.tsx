@@ -31,6 +31,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required 
+           className="dark:text-neutral-800"
         />
         <Input 
           type="password" 
@@ -38,6 +39,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required 
+           className="dark:text-neutral-800"
         />
         <Button 
           type="submit" 

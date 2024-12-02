@@ -93,7 +93,7 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
           label="Géolocalisation"
           value={formData.geolocation}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
         />
 
         <Input 
@@ -102,7 +102,7 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
           label="Commune"
           value={formData.commune}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
         />
 
         <Input 
@@ -111,7 +111,7 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
           label="Coordonnées GPS"
           value={formData.gpsCoordinates}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
         />
 
         <Input 
@@ -120,7 +120,7 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
           label="Surface (m²)"
           value={formData.surface}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
         />
 
         <div>

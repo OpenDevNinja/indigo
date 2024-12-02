@@ -50,7 +50,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, onCancel }) => {
           label="Nom du Client"
           value={formData.clientName}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -60,7 +60,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, onCancel }) => {
           label="Nom de la Campagne"
           value={formData.campaignName}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -71,7 +71,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, onCancel }) => {
             name="startDate"
             value={formData.startDate}
             onChange={handleChange}
-            className="dark:bg-neutral-800 dark:text-neutral-100"
+            className="dark:bg-neutral-800 dark:text-neutral-800"
             required
           />
         </div>
@@ -83,7 +83,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, onCancel }) => {
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
-            className="dark:bg-neutral-800 dark:text-neutral-100"
+            className="dark:bg-neutral-800 dark:text-neutral-800"
             required
           />
         </div>

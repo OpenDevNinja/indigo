@@ -11,8 +11,9 @@ export default function Header() {
           <Input 
             type="text" 
             placeholder="Recherche globale" 
-           /*  icon={<Search className="text-neutral-400 " />}
+         /*    icon={<Search className="text-neutral-400 " />}
              */
+            className=" dark:text-neutral-800" 
           />
         </div>
         <div className="flex items-center space-x-4">

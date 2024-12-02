@@ -65,6 +65,7 @@ export default function ReportsPage() {
             placeholder="Rechercher des rapports"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+             className='dark:text-neutral-800'
           />
         </div>
         <table className="w-full">

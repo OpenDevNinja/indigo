@@ -64,7 +64,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           label="Nom de l'Entreprise"
           value={formData.companyName}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -74,7 +74,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           label="Nom du Contact"
           value={formData.contactName}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -84,7 +84,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           label="Email"
           value={formData.email}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -94,7 +94,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           label="Téléphone"
           value={formData.phone}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
           required
         />
 
@@ -104,7 +104,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           label="Adresse"
           value={formData.address}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-100"
+          className="dark:bg-neutral-800 dark:text-neutral-800"
         />
       </div>
 

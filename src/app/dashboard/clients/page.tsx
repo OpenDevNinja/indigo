@@ -93,6 +93,7 @@ export default function ClientsPage() {
             placeholder="Rechercher des clients"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+             className='dark:text-neutral-800'
           />
         </div>
         <table className="w-full">

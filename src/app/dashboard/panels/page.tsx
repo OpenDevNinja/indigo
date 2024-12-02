@@ -5,10 +5,24 @@ import { panelsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PanelForm from '@/components/panels/PanelForm';
-import { PanelFormData } from '@/components/panels/PanelForm'; // Import the type
+import { PanelFormData } from '@/components/panels/PanelForm';
+
+// Définir une interface qui correspond à la structure complète du panneau
+interface Panel {
+  id: string;
+  type: string;
+  location: string;
+  status: string;
+  gpsCoordinates: string;
+  surface: number;
+  faces: string;
+  lastCampaign: string;
+  panelType?: string;
+  direction?: string;
+}
 
 export default function PanelsPage() {
-  const [panels, setPanels] = useState(panelsData);
+  const [panels, setPanels] = useState<Panel[]>(panelsData);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -21,14 +35,23 @@ export default function PanelsPage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
- 
   const handlePanelCreation = (newPanel: PanelFormData) => {
-    setPanels([...panels, {
-      ...newPanel,
-      location: newPanel.geolocation, }]);
+    const panelToAdd: Panel = {
+      id: newPanel.id || '', // Utilisez l'ID généré ou une chaîne vide
+      type: newPanel.type,
+      location: newPanel.geolocation,
+      status: newPanel.status || 'Disponible',
+      gpsCoordinates: newPanel.gpsCoordinates,
+      surface: newPanel.surface,
+      faces: newPanel.faces,
+      lastCampaign: 'N/A', // Valeur par défaut pour les nouveaux panneaux
+      panelType: newPanel.panelType,
+      direction: newPanel.direction
+    };
+
+    setPanels([...panels, panelToAdd]);
     closeModal();
   };
-
 
   return (
     <div className="space-y-6 relative">

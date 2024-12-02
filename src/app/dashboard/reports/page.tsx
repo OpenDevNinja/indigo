@@ -19,13 +19,13 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Filtrage des rapports selon le terme de recherche
   const filteredReports = reports.filter(report => 
     report.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
     report.period.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleExport = (format: 'pdf' | 'excel') => {
-    // Placeholder for export functionality
     alert(`Exporting report as ${format}`);
   };
 
@@ -36,6 +36,7 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
           Rapports
@@ -57,6 +58,8 @@ export default function ReportsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Table */}
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow">
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
           <Input 
@@ -99,26 +102,26 @@ export default function ReportsPage() {
                     {report.type === 'Disponibilité des Panneaux' && (
                       <>
                         <span className="text-neutral-600">
-                          Panneaux Totaux: {report.totalPanels}
+                          Panneaux Totaux: {report.totalPanels ?? 'N/A'}
                         </span>
                         <span className="text-green-600">
-                          Disponibles: {report.availablePanels}
+                          Disponibles: {report.availablePanels ?? 'N/A'}
                         </span>
                         <span className="text-red-600">
-                          Occupés: {report.occupiedPanels}
+                          Occupés: {report.occupiedPanels ?? 'N/A'}
                         </span>
                       </>
                     )}
                     {report.type === 'Performance des Campagnes' && (
                       <>
                         <span className="text-neutral-600">
-                          Campagnes: {report.totalCampaigns}
+                          Campagnes: {report.totalCampaigns ?? 'N/A'}
                         </span>
                         <span className="text-green-600">
                           Revenus: {new Intl.NumberFormat('fr-FR', { 
                             style: 'currency', 
                             currency: 'GNF' 
-                          }).format(report.revenueGenerated)}
+                          }).format(report.revenueGenerated ?? 0)}
                         </span>
                       </>
                     )}
@@ -161,15 +164,15 @@ export default function ReportsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="font-semibold">Panneaux Totaux</p>
-                  <p>{selectedReport.totalPanels}</p>
+                  <p>{selectedReport.totalPanels ?? 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Panneaux Disponibles</p>
-                  <p className="text-green-600">{selectedReport.availablePanels}</p>
+                  <p className="text-green-600">{selectedReport.availablePanels ?? 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Panneaux Occupés</p>
-                  <p className="text-red-600">{selectedReport.occupiedPanels}</p>
+                  <p className="text-red-600">{selectedReport.occupiedPanels ?? 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Période</p>
@@ -181,7 +184,7 @@ export default function ReportsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="font-semibold">Nombre de Campagnes</p>
-                  <p>{selectedReport.totalCampaigns}</p>
+                  <p>{selectedReport.totalCampaigns ?? 'N/A'}</p>
                 </div>
                 <div>
                   <p className="font-semibold">Revenus Générés</p>
@@ -189,7 +192,7 @@ export default function ReportsPage() {
                     {new Intl.NumberFormat('fr-FR', { 
                       style: 'currency', 
                       currency: 'GNF' 
-                    }).format(selectedReport.revenueGenerated)}
+                    }).format(selectedReport.revenueGenerated ?? 0)}
                   </p>
                 </div>
                 <div>

@@ -5,7 +5,7 @@ import { PlusIcon, EyeIcon, CalendarIcon } from 'lucide-react';
 import { campaignsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import CampaignForm from '@/components/campaigns/CampaignForm';
+import CampaignForm, { CampaignFormData } from '@/components/campaigns/CampaignForm';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function CampaignsPage() {
@@ -30,19 +30,19 @@ export default function CampaignsPage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleCampaignCreation = (newCampaign) => {
+  
+  const handleCampaignCreation = (newCampaign: CampaignFormData) => {
     const campaignToAdd = {
       ...newCampaign,
       id: uuidv4(),
-      panelsUsed: 0, // Default value, can be updated later
-      totalReach: 0, // Default value, can be calculated later
+      panelsUsed: 0, 
+      totalReach: 0, 
       status: newCampaign.status === 'planifiée' ? 'À venir' : 
               newCampaign.status === 'en-cours' ? 'En cours' : 'Terminé'
     };
     setCampaigns([...campaigns, campaignToAdd]);
     closeModal();
   };
-
   return (
     <div className="space-y-6 relative">
       <div className="flex justify-between items-center">

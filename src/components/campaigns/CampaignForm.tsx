@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 
-interface CampaignFormData {
+export interface CampaignFormData {
   clientName: string;
   campaignName: string;
   startDate: string;

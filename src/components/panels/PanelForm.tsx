@@ -3,7 +3,7 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { v4 as uuidv4 } from 'uuid';
 
-interface PanelFormData {
+export interface PanelFormData {
   id?: string;
   type: 'dynamique' | 'statique';
   panelType: '12m2' | 'BigSize' | 'PetitsPanneaux' | 'BornesKilometriques';

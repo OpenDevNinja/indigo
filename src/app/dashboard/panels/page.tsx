@@ -5,6 +5,7 @@ import { panelsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PanelForm from '@/components/panels/PanelForm';
+import { PanelFormData } from '@/components/panels/PanelForm'; // Import the type
 
 export default function PanelsPage() {
   const [panels, setPanels] = useState(panelsData);
@@ -20,10 +21,14 @@ export default function PanelsPage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handlePanelCreation = (newPanel) => {
-    setPanels([...panels, newPanel]);
+ 
+  const handlePanelCreation = (newPanel: PanelFormData) => {
+    setPanels([...panels, {
+      ...newPanel,
+      location: newPanel.geolocation, }]);
     closeModal();
   };
+
 
   return (
     <div className="space-y-6 relative">

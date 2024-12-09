@@ -92,19 +92,19 @@ export default function CampaignsPage() {
     // Enregistrer le document
     doc.save('liste_campagnes.pdf');
   };
- const handleCampaignCreation = (campaignData: CampaignFormData) => {
-  const newCampaign: Campaign = {
-    id: uuidv4(),
-    ...campaignData,
-    status: campaignData.status === 'planifiée' ? 'À venir' : campaignData.status as Campaign['status'],
-    panelsUsed: campaignData.panelGroups.length,
-    pays: campaignData.panelGroups[0]?.pays || '',
-    commune: campaignData.panelGroups[0]?.commune || '',
-  };
+  const handleCampaignCreation = (campaignData: CampaignFormData) => {
+    // Convert CampaignFormData to Campaign by adding required properties
+    const newCampaign: Campaign = {
+      id: uuidv4(), // Generate a new unique ID
+      ...campaignData,
+      panelsUsed: campaignData.panelGroups.length, // Count number of panels
+      pays: campaignData.panelGroups[0]?.pays || '', // Get pays from first panel or use empty string
+      commune: campaignData.panelGroups[0]?.commune || '', // Get commune from first panel or use empty string
+    };
 
-  setCampaigns([...campaigns, newCampaign]);
-  setIsModalOpen(false);
-};
+    setCampaigns([...campaigns, newCampaign]);
+    setIsModalOpen(false);
+  };
 
   const handleCampaignUpdate = (campaignData: CampaignFormData) => {
     // Find the existing campaign to update

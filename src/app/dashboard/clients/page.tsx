@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
 import { v4 as uuidv4 } from 'uuid';
-import ClientForm from '@/components/client/ClientForm';
+import ClientForm, { ClientFormData } from '@/components/client/ClientForm';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -34,45 +34,37 @@ export default function ClientsPage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleClientCreation = (newClient: {
-    companyName: string;
-    contactName: string;
-    email: string;
-    phone: string;
-    address: string;
-    clientType: 'particulier' | 'entreprise' | 'institution';
-  }) => {
+  const handleClientCreation = (newClient: ClientFormData) => {
     const clientToAdd: Client = {
       id: uuidv4(),
-      name: newClient.companyName,
-      contactPerson: newClient.contactName,
-      email: newClient.email,
-      phone: newClient.phone,
+      name: newClient.companyName || '', // Provide a default empty string if undefined
+      contactPerson: newClient.contactName || '',
+      email: newClient.email || '',
+      phone: newClient.phone || '',
       totalCampaigns: 0, // Default value, can be updated later
       activeContracts: 0 // Default value, can be updated later
     };
     setClients([...clients, clientToAdd]);
     closeModal();
   };
-
   const exportToPDF = () => {
     // Create a new PDF document
     const doc = new jsPDF();
-    
+
     // Document title
     doc.setFontSize(18);
     doc.text('Liste des Clients', 14, 22);
-  
+
     // Prepare table columns
     const tableColumn = [
-      'Nom', 
-      'Personne de Contact', 
-      'Email', 
-      'Téléphone', 
-      'Campagnes Totales', 
+      'Nom',
+      'Personne de Contact',
+      'Email',
+      'Téléphone',
+      'Campagnes Totales',
       'Contrats Actifs'
     ];
-    
+
     // Prepare table rows
     const tableRows = filteredClients.map(client => [
       client.name,
@@ -82,23 +74,23 @@ export default function ClientsPage() {
       client.totalCampaigns.toString(),
       client.activeContracts.toString()
     ]);
-  
+
     // Add table to document
     (doc as any).autoTable({
       startY: 30,
       head: [tableColumn],
       body: tableRows,
       theme: 'striped',
-      styles: { 
+      styles: {
         fontSize: 8,
-        cellPadding: 3 
+        cellPadding: 3
       },
-      headStyles: { 
+      headStyles: {
         fillColor: [41, 128, 185],
-        textColor: 255 
+        textColor: 255
       }
     });
-  
+
     // Save the document
     doc.save('liste_clients.pdf');
   };
@@ -109,34 +101,34 @@ export default function ClientsPage() {
           Gestion des Clients
         </h1>
         <div className="flex space-x-2">
-  <Button
-    variant="secondary"
-    icon={<DownloadIcon />}
-    onClick={exportToPDF}
-  >
-    Exporter PDF
-  </Button>
-  <Button 
-    variant="primary" 
-    icon={<PlusIcon />}
-    onClick={openModal}
-  >
-    Nouveau Client
-  </Button>
-</div>
+          <Button
+            variant="secondary"
+            icon={<DownloadIcon />}
+            onClick={exportToPDF}
+          >
+            Exporter PDF
+          </Button>
+          <Button
+            variant="primary"
+            icon={<PlusIcon />}
+            onClick={openModal}
+          >
+            Nouveau Client
+          </Button>
+        </div>
       </div>
 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0  bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
-            <button 
-              onClick={closeModal} 
+            <button
+              onClick={closeModal}
               className="absolute top-4 right-4 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100"
             >
               ✕
             </button>
-            <ClientForm 
+            <ClientForm
               onSubmit={handleClientCreation}
               onCancel={closeModal}
             />
@@ -146,12 +138,12 @@ export default function ClientsPage() {
 
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow">
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
-          <Input 
+          <Input
             type="text"
             placeholder="Rechercher des clients"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-             className='dark:text-neutral-800'
+            className='dark:text-neutral-800'
           />
         </div>
         <table className="w-full">
@@ -163,24 +155,24 @@ export default function ClientsPage() {
               <th className="p-4 text-left">Téléphone</th>
               <th className="p-4 text-left">Campagnes</th>
               <th className="p-4 text-left">Actions</th>
-             
+
             </tr>
           </thead>
           <tbody>
             {filteredClients.map((client) => (
-              <tr 
-                key={client.id} 
+              <tr
+                key={client.id}
                 className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
               >
                 <td className="p-4 font-medium">{client.name}</td>
                 <td className="p-4">{client.contactPerson}</td>
                 <td className="p-4 flex   items-center">
                   <MailIcon className="w-4 h-4 mr-2 text-neutral-500" />
-                  {client.email} 
+                  {client.email}
                   <br />
-                   {client.phone}
+                  {client.phone}
                 </td>
-               {/*  <td className="p-4 flex items-center">
+                {/*  <td className="p-4 flex items-center">
                   <PhoneIcon className="w-4 h-4 mr-2 text-neutral-500" />
                   {client.phone}
                 </td> */}

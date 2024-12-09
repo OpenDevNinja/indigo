@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 
-interface ClientFormData {
+export interface ClientFormData {
   companyName?: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  address: string;
-  clientType: 'particulier' | 'entreprise';
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  clientType?: 'particulier' | 'entreprise';
 }
 
 interface ClientFormProps {

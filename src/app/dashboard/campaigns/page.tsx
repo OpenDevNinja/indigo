@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PlusIcon, Pencil, CalendarIcon, DownloadIcon } from 'lucide-react';
-import { campaignsData, Campaign, clientsData } from '@/lib/mock-data';
+import { campaignsData, Campaign, clientsData,CampaignFormData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import CampaignForm from '@/components/campaigns/CampaignForm';
@@ -92,17 +92,39 @@ export default function CampaignsPage() {
     // Enregistrer le document
     doc.save('liste_campagnes.pdf');
   };
-  const handleCampaignCreation = (newCampaign: Campaign) => {
+  const handleCampaignCreation = (campaignData: CampaignFormData) => {
+    // Convert CampaignFormData to Campaign by adding required properties
+    const newCampaign: Campaign = {
+      id: uuidv4(), // Generate a new unique ID
+      ...campaignData,
+      panelsUsed: campaignData.panelGroups.length, // Count number of panels
+      pays: campaignData.panelGroups[0]?.pays || '', // Get pays from first panel or use empty string
+      commune: campaignData.panelGroups[0]?.commune || '', // Get commune from first panel or use empty string
+    };
+
     setCampaigns([...campaigns, newCampaign]);
     setIsModalOpen(false);
   };
 
-  const handleCampaignUpdate = (updatedCampaign: Campaign) => {
-    setCampaigns(campaigns.map(campaign => 
-      campaign.id === updatedCampaign.id ? updatedCampaign : campaign
-    ));
-    setEditingCampaign(null);
-    setIsModalOpen(false);
+  const handleCampaignUpdate = (campaignData: CampaignFormData) => {
+    // Find the existing campaign to update
+    const existingCampaign = campaigns.find(c => c.id === editingCampaign?.id);
+
+    if (existingCampaign) {
+      const updatedCampaign: Campaign = {
+        ...existingCampaign,
+        ...campaignData,
+        panelsUsed: campaignData.panelGroups.length,
+        pays: campaignData.panelGroups[0]?.pays || existingCampaign.pays,
+        commune: campaignData.panelGroups[0]?.commune || existingCampaign.commune,
+      };
+
+      setCampaigns(campaigns.map(campaign => 
+        campaign.id === updatedCampaign.id ? updatedCampaign : campaign
+      ));
+      setEditingCampaign(null);
+      setIsModalOpen(false);
+    }
   };
 
   const openEditModal = (campaign: Campaign) => {
@@ -215,13 +237,13 @@ export default function CampaignsPage() {
         ✕
       </button>
       <CampaignForm 
-        initialCampaign={editingCampaign || undefined}
-        onSubmit={editingCampaign ? handleCampaignUpdate : handleCampaignCreation}
-        onCancel={() => {
-          setIsModalOpen(false);
-          setEditingCampaign(null);
-        }}
-      />
+      initialCampaign={editingCampaign || undefined}
+      onSubmit={editingCampaign ? handleCampaignUpdate : handleCampaignCreation}
+      onCancel={() => {
+        setIsModalOpen(false);
+        setEditingCampaign(null);
+      }}
+    />
     </div>
   </div>
 )}

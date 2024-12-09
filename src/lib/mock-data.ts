@@ -1,4 +1,18 @@
 // Mock data for Panels Page
+export interface PanelData {
+  id: string;
+  type: string;
+  panelType: string;
+  pays: string;
+  commune: string;
+  location: string;
+  status: string;
+  gpsCoordinates: string;
+  surface: number;
+  faces: number;
+  lastCampaign: string;
+  sens: string;
+}
 export const panelsData=  [
   {
     id: 'P001',
@@ -54,6 +68,7 @@ export const panelsData=  [
     status: 'Normal' | 'Annulé' | 'En cours' | 'À venir' | 'Terminé';
     panelsUsed: number;
     totalReach?: number;
+    panelGroups?: PanelData[]; 
     pays?: string;
     commune?: string;
   }
@@ -66,6 +81,14 @@ export const panelsData=  [
     phone: string;
     totalCampaigns: number;
     activeContracts: number;
+  }
+  export interface CampaignFormData {
+    clientName: string;
+    campaignName: string;
+    startDate: string;
+    endDate: string;
+    panelGroups: PanelData[];
+    status: string;
   }
   
   export const campaignsData: Campaign[] = [

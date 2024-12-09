@@ -32,17 +32,23 @@ export interface CampaignFormData {
 interface CampaignFormProps {
   onSubmit: (campaign: CampaignFormData) => void;
   onCancel: () => void;
+  initialCampaign?: Campaign; 
 }
 
-const CampaignForm: React.FC<CampaignFormProps> = ({ onSubmit, onCancel }) => {
+const CampaignForm: React.FC<CampaignFormProps> = ({ 
+  onSubmit, 
+  onCancel, 
+  initialCampaign 
+}) => {
   const [formData, setFormData] = useState<CampaignFormData>({
-    clientName: '',
-    campaignName: '',
-    startDate: '',
-    endDate: '',
-    panelGroups: [],
-    status: 'planifiée'
+    clientName: initialCampaign?.clientName || '',
+    campaignName: initialCampaign?.campaignName || '',
+    startDate: initialCampaign?.startDate || '',
+    endDate: initialCampaign?.endDate || '',
+    panelGroups: initialCampaign?.panelGroups || [], // Assuming you've added panelGroups to Campaign type
+    status: initialCampaign?.status || 'planifiée'
   });
+
 
   const [isPanelDialogOpen, setIsPanelDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

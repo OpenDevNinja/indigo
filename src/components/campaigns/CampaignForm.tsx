@@ -4,7 +4,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
 
-import { panelsData, clientsData} from '@/lib/mock-data';
+import { panelsData, clientsData, Campaign} from '@/lib/mock-data';
 export interface PanelData {
   id: string;
   type: string;

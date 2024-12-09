@@ -26,7 +26,7 @@ export interface CampaignFormData {
   startDate: string;
   endDate: string;
   panelGroups: PanelData[];
-  status: 'planifiée' | 'en-cours' | 'terminée';
+  status: "Normal" | "Annulé" ;
 }
 
 interface CampaignFormProps {
@@ -45,8 +45,8 @@ const CampaignForm: React.FC<CampaignFormProps> = ({
     campaignName: initialCampaign?.campaignName || '',
     startDate: initialCampaign?.startDate || '',
     endDate: initialCampaign?.endDate || '',
-    panelGroups: initialCampaign?.panelGroups || [], // Assuming you've added panelGroups to Campaign type
-    status: initialCampaign?.status || 'planifiée'
+    panelGroups: initialCampaign?.panelGroups || [], 
+    status: initialCampaign?.status || 'Normal'
   });
 
 

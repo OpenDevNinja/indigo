@@ -66,7 +66,7 @@ export const panelsData=  [
     campaignName: string;
     startDate: string;
     endDate: string;
-    status: "Normal" | "Annulé" | "En cours" | "À venir" | "Terminé";
+    status: "Normal" | "Annulé" ;
     panelsUsed: number;
     panelGroups?: PanelData[]; 
     pays?: string;

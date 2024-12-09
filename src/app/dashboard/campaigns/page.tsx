@@ -106,27 +106,26 @@ export default function CampaignsPage() {
   setIsModalOpen(false);
 };
 
-  const handleCampaignUpdate = (campaignData: CampaignFormData) => {
-    // Find the existing campaign to update
-    const existingCampaign = campaigns.find(c => c.id === editingCampaign?.id);
+const handleCampaignUpdate = (campaignData: CampaignFormData) => {
+  const existingCampaign = campaigns.find(c => c.id === editingCampaign?.id);
 
-    if (existingCampaign) {
-      const updatedCampaign: Campaign = {
-        ...existingCampaign,
-        ...campaignData,
-        panelsUsed: campaignData.panelGroups.length,
-        pays: campaignData.panelGroups[0]?.pays || existingCampaign.pays,
-        commune: campaignData.panelGroups[0]?.commune || existingCampaign.commune,
-      };
+  if (existingCampaign) {
+    const updatedCampaign: Campaign = {
+      ...existingCampaign,
+      ...campaignData,
+      status: campaignData.status === 'planifiée' ? 'À venir' : campaignData.status as Campaign['status'],
+      panelsUsed: campaignData.panelGroups.length,
+      pays: campaignData.panelGroups[0]?.pays ?? existingCampaign.pays,
+      commune: campaignData.panelGroups[0]?.commune ?? existingCampaign.commune,
+    };
 
-      setCampaigns(campaigns.map(campaign => 
-        campaign.id === updatedCampaign.id ? updatedCampaign : campaign
-      ));
-      setEditingCampaign(null);
-      setIsModalOpen(false);
-    }
-  };
-
+    setCampaigns(campaigns.map(campaign => 
+      campaign.id === updatedCampaign.id ? updatedCampaign : campaign
+    ));
+    setEditingCampaign(null);
+    setIsModalOpen(false);
+  }
+};
   const openEditModal = (campaign: Campaign) => {
     setEditingCampaign(campaign);
     setIsModalOpen(true);

@@ -113,7 +113,7 @@ const handleCampaignUpdate = (campaignData: CampaignFormData) => {
     const updatedCampaign: Campaign = {
       ...existingCampaign,
       ...campaignData,
-      status: campaignData.status === 'planifiée' ? 'À venir' : campaignData.status as Campaign['status'],
+      status: campaignData.status === 'Normal' ? 'Normal' : campaignData.status as Campaign['status'],
       panelsUsed: campaignData.panelGroups.length,
       pays: campaignData.panelGroups[0]?.pays ?? existingCampaign.pays,
       commune: campaignData.panelGroups[0]?.commune ?? existingCampaign.commune,

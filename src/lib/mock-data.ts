@@ -58,16 +58,16 @@ export const panelsData=  [
   }
 ];
   
-  // Mock data for Campaigns Page
+  // Mock data for Campaigns Page/* 
+
   export interface Campaign {
     id: string;
     clientName: string;
     campaignName: string;
     startDate: string;
     endDate: string;
-    status: 'Normal' | 'Annulé' | 'En cours' | 'À venir' | 'Terminé';
+    status: "Normal" | "Annulé" | "En cours" | "À venir" | "Terminé";
     panelsUsed: number;
-    totalReach?: number;
     panelGroups?: PanelData[]; 
     pays?: string;
     commune?: string;
@@ -88,7 +88,7 @@ export const panelsData=  [
     startDate: string;
     endDate: string;
     panelGroups: PanelData[];
-    status: string;
+    status: string; 
   }
   
   export const campaignsData: Campaign[] = [

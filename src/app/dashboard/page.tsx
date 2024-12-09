@@ -41,7 +41,7 @@ const PanelDashboard = () => {
     <div className="p-6 bg-neutral-50 dark:bg-neutral-900 min-h-screen">
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-neutral-800 dark:text-neutral-100">
-          Tableau de Bord des Panneaux
+          Tableau de Bord 
         </h1>
 
         {/* Key Metrics Grid */}

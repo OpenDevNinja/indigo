@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusIcon, MailIcon, PhoneIcon, EditIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon, MailIcon, PhoneIcon, EditIcon, TrashIcon, DownloadIcon } from 'lucide-react';
 import { clientsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
 import { v4 as uuidv4 } from 'uuid';
 import ClientForm from '@/components/client/ClientForm';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 interface Client {
   id: string;
@@ -53,19 +55,75 @@ export default function ClientsPage() {
     closeModal();
   };
 
+  const exportToPDF = () => {
+    // Create a new PDF document
+    const doc = new jsPDF();
+    
+    // Document title
+    doc.setFontSize(18);
+    doc.text('Liste des Clients', 14, 22);
+  
+    // Prepare table columns
+    const tableColumn = [
+      'Nom', 
+      'Personne de Contact', 
+      'Email', 
+      'Téléphone', 
+      'Campagnes Totales', 
+      'Contrats Actifs'
+    ];
+    
+    // Prepare table rows
+    const tableRows = filteredClients.map(client => [
+      client.name,
+      client.contactPerson,
+      client.email,
+      client.phone,
+      client.totalCampaigns.toString(),
+      client.activeContracts.toString()
+    ]);
+  
+    // Add table to document
+    (doc as any).autoTable({
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'striped',
+      styles: { 
+        fontSize: 8,
+        cellPadding: 3 
+      },
+      headStyles: { 
+        fillColor: [41, 128, 185],
+        textColor: 255 
+      }
+    });
+  
+    // Save the document
+    doc.save('liste_clients.pdf');
+  };
   return (
     <div className="space-y-6 relative">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
           Gestion des Clients
         </h1>
-        <Button 
-          variant="primary" 
-          icon={<PlusIcon />}
-          onClick={openModal}
-        >
-          Nouveau Client
-        </Button>
+        <div className="flex space-x-2">
+  <Button
+    variant="secondary"
+    icon={<DownloadIcon />}
+    onClick={exportToPDF}
+  >
+    Exporter PDF
+  </Button>
+  <Button 
+    variant="primary" 
+    icon={<PlusIcon />}
+    onClick={openModal}
+  >
+    Nouveau Client
+  </Button>
+</div>
       </div>
 
       {/* Modal */}

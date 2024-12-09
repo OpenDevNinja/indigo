@@ -3,12 +3,12 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 
 interface ClientFormData {
-  companyName: string;
+  companyName?: string;
   contactName: string;
   email: string;
   phone: string;
   address: string;
-  clientType: 'particulier' | 'entreprise' | 'institution';
+  clientType: 'particulier' | 'entreprise';
 }
 
 interface ClientFormProps {
@@ -28,15 +28,30 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      // If changing client type to 'particulier', remove company name
+      if (name === 'clientType' && value === 'particulier') {
+        return {
+          ...prev,
+          [name]: value,
+          companyName: undefined
+        };
+      }
+      return {
+        ...prev,
+        [name]: value
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    // Remove companyName if it's undefined before submitting
+    const submitData = { ...formData };
+    if (submitData.clientType === 'particulier') {
+      delete submitData.companyName;
+    }
+    onSubmit(submitData);
   };
 
   return (
@@ -54,19 +69,21 @@ const ClientForm: React.FC<ClientFormProps> = ({ onSubmit, onCancel }) => {
           >
             <option value="entreprise">Entreprise</option>
             <option value="particulier">Particulier</option>
-            <option value="institution">Institution</option>
+            
           </select>
         </div>
 
-        <Input
-          type="text"
-          name="companyName"
-          label="Nom de l'Entreprise"
-          value={formData.companyName}
-          onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-800"
-          required
-        />
+        {(formData.clientType === 'entreprise' ) && (
+          <Input
+            type="text"
+            name="companyName"
+            label="Nom de l'Entreprise"
+            value={formData.companyName || ''}
+            onChange={handleChange}
+            className="dark:bg-neutral-800 dark:text-neutral-800"
+            required
+          />
+        )}
 
         <Input
           type="text"

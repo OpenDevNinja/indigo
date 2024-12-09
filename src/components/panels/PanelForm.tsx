@@ -7,12 +7,14 @@ export interface PanelFormData {
   id?: string;
   type: 'dynamique' | 'statique';
   panelType: '12m2' | 'BigSize' | 'PetitsPanneaux' | 'BornesKilometriques';
+  pays: string;
+  commune: string;
   geolocation: string;
   direction: string;
+  sens: string;
   format: string;
   surface: number;
-  faces: 'simple' | 'double' | 'triple';
-  commune: string;
+  faces: number;
   gpsCoordinates: string;
   status?: 'Disponible' | 'Indisponible';
 }
@@ -23,24 +25,59 @@ interface PanelFormProps {
 }
 
 const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
+  // Liste des pays prédéfinis
+  const paysList = [
+    'France', 
+    'Belgique', 
+    'Suisse', 
+    'Canada', 
+    'Maroc', 
+    'Algérie', 
+    'Tunisie'
+  ];
+
+  // Liste des communes (à remplacer par une vraie liste ou une API)
+  const communesList = {
+    'France': ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Nice'],
+    'Belgique': ['Bruxelles', 'Anvers', 'Gand', 'Charleroi'],
+    'Suisse': ['Genève', 'Zurich', 'Berne', 'Lausanne'],
+    'Canada': ['Montréal', 'Toronto', 'Vancouver', 'Ottawa'],
+    'Maroc': ['Casablanca', 'Rabat', 'Marrakech', 'Fès'],
+    'Algérie': ['Alger', 'Oran', 'Constantine', 'Annaba'],
+    'Tunisie': ['Tunis', 'Sfax', 'Sousse', 'Kairouan']
+  };
+
   const [formData, setFormData] = useState<PanelFormData>({
     type: 'statique',
     panelType: '12m2',
+    pays: '',
+    commune: '',
     geolocation: '',
     direction: '',
+    sens: '',
     format: '',
     surface: 0,
-    faces: 'simple',
-    commune: '',
+    faces: 1,
     gpsCoordinates: '',
     status: 'Disponible'
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    // Gestion spécifique pour le pays pour réinitialiser la commune
+    if (name === 'pays') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        commune: '' // Réinitialiser la commune quand le pays change
+      }));
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'surface' ? Number(value) : value
+      [name]: ['surface', 'faces'].includes(name) ? Number(value) : value
     }));
   };
 
@@ -49,7 +86,8 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
     const panelToSubmit = {
       ...formData,
       id: uuidv4(), // Generate a unique ID
-      surface: Number(formData.surface)
+      surface: Number(formData.surface),
+      faces: Number(formData.faces)
     };
     onSubmit(panelToSubmit);
   };
@@ -60,7 +98,7 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-neutral-700 dark:text-neutral-300 mb-2">Type de Panneau</label>
+          <label className="block text-neutral-700 dark:text-neutral-300 mb-2">Groupe de panneaux</label>
           <select 
             name="panelType"
             value={formData.panelType}
@@ -87,55 +125,92 @@ const PanelForm: React.FC<PanelFormProps> = ({ onSubmit, onCancel }) => {
           </select>
         </div>
 
+        <div>
+          <label className="block text-neutral-700 dark:text-neutral-300 mb-2">Pays</label>
+          <select 
+            name="pays"
+            value={formData.pays}
+            onChange={handleChange}
+            className="w-full rounded-md border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+          >
+            <option value="">Sélectionnez un pays</option>
+            {paysList.map(pays => (
+              <option key={pays} value={pays}>{pays}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-neutral-700 dark:text-neutral-300 mb-2">Commune</label>
+          <select 
+            name="commune"
+            value={formData.commune}
+            onChange={handleChange}
+            disabled={!formData.pays}
+            className="w-full rounded-md border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 disabled:opacity-50"
+          >
+            <option value="">Sélectionnez une commune</option>
+            {formData.pays && communesList[formData.pays as keyof typeof communesList]?.map(commune => (
+              <option key={commune} value={commune}>{commune}</option>
+            ))}
+          </select>
+        </div>
+
         <Input 
           type="text"
           name="geolocation"
-          label="Géolocalisation"
+          label="Situation Géographique"
           value={formData.geolocation}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-800"
+          className="dark:bg-neutral-800 dark:text-neutral-100"
         />
+
+       {/*  <Input 
+          type="text"
+          name="direction"
+          label="Direction"
+          value={formData.direction}
+          onChange={handleChange}
+          className="dark:bg-neutral-800 dark:text-neutral-100"
+        /> */}
 
         <Input 
           type="text"
-          name="commune"
-          label="Commune"
-          value={formData.commune}
+          name="sens"
+          label="Sens"
+          value={formData.sens}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-800"
+          className="dark:bg-neutral-800 dark:text-neutral-100"
         />
 
-        <Input 
+       {/*  <Input 
           type="text"
           name="gpsCoordinates"
           label="Coordonnées GPS"
           value={formData.gpsCoordinates}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-800"
+          className="dark:bg-neutral-800 dark:text-neutral-100"
         />
-
+ */}
         <Input 
           type="number"
           name="surface"
           label="Surface (m²)"
           value={formData.surface}
           onChange={handleChange}
-          className="dark:bg-neutral-800 dark:text-neutral-800"
+          className="dark:bg-neutral-800 dark:text-neutral-100"
         />
 
-        <div>
-          <label className="block text-neutral-700 dark:text-neutral-300 mb-2">Nombre de Faces</label>
-          <select 
-            name="faces"
-            value={formData.faces}
-            onChange={handleChange}
-            className="w-full rounded-md border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-          >
-            <option value="simple">Simple Face</option>
-            <option value="double">Double Face</option>
-            <option value="triple">Triple Face</option>
-          </select>
-        </div>
+        <Input 
+          type="number"
+          name="faces"
+          label="Nombre de Faces"
+          value={formData.faces}
+          onChange={handleChange}
+          min={1}
+          max={10}
+          className="dark:bg-neutral-800 dark:text-neutral-100"
+        />
       </div>
 
       <div className="flex justify-end space-x-4 mt-6">

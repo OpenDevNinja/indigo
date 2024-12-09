@@ -1,24 +1,28 @@
 'use client';
 import { useState } from 'react';
-import { PlusIcon, EditIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon, EditIcon, TrashIcon, DownloadIcon } from 'lucide-react';
 import { panelsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import PanelForm from '@/components/panels/PanelForm';
 import { PanelFormData } from '@/components/panels/PanelForm';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
-// Définir une interface qui correspond à la structure complète du panneau
-interface Panel {
+// Exporter l'interface pour une utilisation dans d'autres fichiers
+export interface Panel {
   id: string;
   type: string;
+  panelType?: string;
+  pays: string;
+  commune: string;
   location: string;
   status: string;
   gpsCoordinates: string;
   surface: number;
-  faces: string;
+  faces: number;
   lastCampaign: string;
-  panelType?: string;
-  direction?: string;
+  sens?: string;
 }
 
 export default function PanelsPage() {
@@ -37,20 +41,75 @@ export default function PanelsPage() {
 
   const handlePanelCreation = (newPanel: PanelFormData) => {
     const panelToAdd: Panel = {
-      id: newPanel.id || '', // Utilisez l'ID généré ou une chaîne vide
+      id: newPanel.id || '', 
       type: newPanel.type,
+      panelType: newPanel.panelType,
+      pays: newPanel.pays,
+      commune: newPanel.commune,
       location: newPanel.geolocation,
       status: newPanel.status || 'Disponible',
       gpsCoordinates: newPanel.gpsCoordinates,
       surface: newPanel.surface,
       faces: newPanel.faces,
-      lastCampaign: 'N/A', // Valeur par défaut pour les nouveaux panneaux
-      panelType: newPanel.panelType,
-      direction: newPanel.direction
+      lastCampaign: 'N/A', 
+      sens: newPanel.sens
     };
 
     setPanels([...panels, panelToAdd]);
     closeModal();
+  };
+
+  const exportToPDF = () => {
+    // Créer un nouveau document PDF
+    const doc = new jsPDF();
+    
+    // Titre du document
+    doc.setFontSize(18);
+    doc.text('Liste des Panneaux', 14, 22);
+
+    // Préparer les données pour la table
+    const tableColumn = [
+      'ID', 
+      'Type', 
+      'Pays', 
+      'Commune', 
+      'Localisation', 
+      'Statut', 
+      'Surface', 
+      'Faces',
+      'Coordonnées GPS'
+    ];
+    
+    const tableRows = filteredPanels.map(panel => [
+      panel.id,
+      panel.type,
+      panel.pays,
+      panel.commune,
+      panel.location,
+      panel.status,
+      `${panel.surface} m²`,
+      panel.faces.toString(),
+      panel.gpsCoordinates
+    ]);
+
+    // Ajouter la table au document
+    (doc as any).autoTable({
+      startY: 30,
+      head: [tableColumn],
+      body: tableRows,
+      theme: 'striped',
+      styles: { 
+        fontSize: 8,
+        cellPadding: 3 
+      },
+      headStyles: { 
+        fillColor: [41, 128, 185],
+        textColor: 255 
+      }
+    });
+
+    // Enregistrer le document
+    doc.save('liste_panneaux.pdf');
   };
 
   return (
@@ -59,13 +118,22 @@ export default function PanelsPage() {
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
           Gestion des Panneaux
         </h1>
-        <Button
-          variant="primary"
-          icon={<PlusIcon />}
-          onClick={openModal}
-        >
-          Ajouter un Panneau
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            variant="secondary"
+            icon={<DownloadIcon />}
+            onClick={exportToPDF}
+          >
+            Exporter PDF
+          </Button>
+          <Button
+            variant="primary"
+            icon={<PlusIcon />}
+            onClick={openModal}
+          >
+            Ajouter un Panneau
+          </Button>
+        </div>
       </div>
 
       {/* Modal */}
@@ -87,7 +155,6 @@ export default function PanelsPage() {
       )}
 
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow">
-        {/* Rest of the existing table code remains the same */}
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
           <Input
             type="text"
@@ -98,11 +165,12 @@ export default function PanelsPage() {
           />
         </div>
         <table className="w-full">
-          {/* Table header and body remain the same as in the original code */}
           <thead>
             <tr className="bg-neutral-100 dark:bg-neutral-700">
               <th className="p-4 text-left">ID</th>
               <th className="p-4 text-left">Type</th>
+              <th className="p-4 text-left">Pays</th>
+              <th className="p-4 text-left">Commune</th>
               <th className="p-4 text-left">Localisation</th>
               <th className="p-4 text-left">Statut</th>
               <th className="p-4 text-left">Surface</th>
@@ -117,6 +185,8 @@ export default function PanelsPage() {
               >
                 <td className="p-4">{panel.id}</td>
                 <td className="p-4">{panel.type}</td>
+                <td className="p-4">{panel.pays}</td>
+                <td className="p-4">{panel.commune}</td>
                 <td className="p-4">{panel.location}</td>
                 <td className="p-4">
                   <span

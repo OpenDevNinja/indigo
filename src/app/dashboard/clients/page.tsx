@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusIcon, MailIcon, PhoneIcon, EditIcon } from 'lucide-react';
+import { PlusIcon, MailIcon, PhoneIcon, EditIcon, TrashIcon } from 'lucide-react';
 import { clientsData } from '@/lib/mock-data';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -104,8 +104,8 @@ export default function ClientsPage() {
               <th className="p-4 text-left">Email</th>
               <th className="p-4 text-left">Téléphone</th>
               <th className="p-4 text-left">Campagnes</th>
-              <th className="p-4 text-left">Contrats Actifs</th>
               <th className="p-4 text-left">Actions</th>
+             
             </tr>
           </thead>
           <tbody>
@@ -116,14 +116,16 @@ export default function ClientsPage() {
               >
                 <td className="p-4 font-medium">{client.name}</td>
                 <td className="p-4">{client.contactPerson}</td>
-                <td className="p-4 flex items-center">
+                <td className="p-4 flex   items-center">
                   <MailIcon className="w-4 h-4 mr-2 text-neutral-500" />
-                  {client.email}
+                  {client.email} 
+                  <br />
+                   {client.phone}
                 </td>
-                <td className="p-4 flex items-center">
+               {/*  <td className="p-4 flex items-center">
                   <PhoneIcon className="w-4 h-4 mr-2 text-neutral-500" />
                   {client.phone}
-                </td>
+                </td> */}
                 <td className="p-4">{client.totalCampaigns}</td>
                 <td className="p-4">{client.activeContracts}</td>
                 <td className="p-4 flex space-x-2">
@@ -131,6 +133,11 @@ export default function ClientsPage() {
                     variant="ghost"
                     icon={<EditIcon className="w-4 h-4" />}
                     aria-label="Modifier"
+                  />
+                  <Button
+                    variant="ghost"
+                    icon={<TrashIcon className="w-4 h-4 text-red-500" />}
+                    aria-label="Supprimer"
                   />
                 </td>
               </tr>

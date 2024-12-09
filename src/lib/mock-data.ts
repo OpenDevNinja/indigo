@@ -1,51 +1,99 @@
 // Mock data for Panels Page
-export const panelsData = [
-    {
-      id: 'P001',
-      type: '12m²',
-      location: 'Commune de Ratoma',
-      status: 'Disponible',
-      gpsCoordinates: '9.5370° N, 13.7130° W',
-      surface: 12,
-      faces: 'Double face',
-      lastCampaign: 'Orange Mobile - Jan 2024'
-    },
-    {
-      id: 'P002',
-      type: 'Big Size',
-      location: 'Commune de Matoto',
-      status: 'Occupé',
-      gpsCoordinates: '9.5371° N, 13.7131° W',
-      surface: 24,
-      faces: 'Triple face',
-      lastCampaign: 'MTN - Fev 2024'
-    }
-  ];
+export const panelsData=  [
+  {
+    id: 'P001',
+    type: 'Statique',
+    panelType: '12m2',
+    pays: 'Guinée',
+    commune: 'Ratoma',
+    location: 'Commune de Ratoma',
+    status: 'Disponible',
+    gpsCoordinates: '9.5370° N, 13.7130° W',
+    surface: 12,
+    faces: 2,
+    lastCampaign: 'Orange Mobile - Jan 2024',
+    sens: 'Nord-Sud'
+  },
+  {
+    id: 'P002',
+    type: 'Dynamique',
+    panelType: 'BigSize',
+    pays: 'Guinée',
+    commune: 'Matoto',
+    location: 'Commune de Matoto',
+    status: 'Indisponible',
+    gpsCoordinates: '9.5371° N, 13.7131° W',
+    surface: 24,
+    faces: 3,
+    lastCampaign: 'MTN - Fev 2024',
+    sens: 'Sud-Nord'
+  },
+  {
+    id: 'P003',
+    type: 'Statique',
+    panelType: 'PetitsPanneaux',
+    pays: 'Guinée',
+    commune: 'Dixinn',
+    location: 'Commune de Dixinn',
+    status: 'Disponible',
+    gpsCoordinates: '9.5372° N, 13.7132° W',
+    surface: 6,
+    faces: 1,
+    lastCampaign: 'Sotelgui - Mar 2024',
+    sens: 'Est-Ouest'
+  }
+];
   
   // Mock data for Campaigns Page
-  export const campaignsData = [
+  export interface Campaign {
+    id: string;
+    clientName: string;
+    campaignName: string;
+    startDate: string;
+    endDate: string;
+    status: 'Normal' | 'Annulé' | 'En cours' | 'À venir' | 'Terminé';
+    panelsUsed: number;
+    totalReach?: number;
+    pays?: string;
+    commune?: string;
+  }
+  
+  export interface Client {
+    id: string;
+    name: string;
+    contactPerson: string;
+    email: string;
+    phone: string;
+    totalCampaigns: number;
+    activeContracts: number;
+  }
+  
+  export const campaignsData: Campaign[] = [
     {
       id: 'C001',
       clientName: 'Orange Mobile',
+      campaignName: 'Campagne Nationale 2024',
       startDate: '2024-01-15',
       endDate: '2024-04-15',
-      status: 'En cours',
+      status: 'Normal',
       panelsUsed: 15,
-      totalReach: 250000
+      pays: 'Guinée',
+      commune: 'Conakry'
     },
     {
       id: 'C002',
       clientName: 'MTN Guinée',
+      campaignName: 'Promotion Internet Mobile',
       startDate: '2024-02-01',
       endDate: '2024-05-01',
-      status: 'À venir',
+      status: 'Annulé',
       panelsUsed: 10,
-      totalReach: 180000
+      pays: 'Bénin',
+      commune: 'Calavi'
     }
   ];
   
-  // Mock data for Clients Page
-  export const clientsData = [
+  export const clientsData: Client[] = [
     {
       id: 'CL001',
       name: 'Orange Mobile',
@@ -65,7 +113,6 @@ export const panelsData = [
       activeContracts: 1
     }
   ];
-  
   // Mock data for Reports Page
   export const reportsData = [
     {

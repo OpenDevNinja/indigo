@@ -30,11 +30,7 @@ const menuItems = [
     icon: User, 
     href: '/dashboard/clients' 
   },
-  { 
-    name: 'Rapports', 
-    icon: FileText, 
-    href: '/dashboard/reports' 
-  },
+ 
   { 
     name: 'Configuration', 
     icon: SettingsIcon, 

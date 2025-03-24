@@ -1,27 +1,26 @@
-// src/app/alerts/page.tsx
-"use client"
+'use client';
+// Importations nécessaires
 import { useState, useEffect } from 'react';
 import { PlusIcon, EditIcon, TrashIcon, DownloadIcon } from 'lucide-react';
-import { alertService } from '@/services/alertService';
+import { PanelType } from '@/types/type';
+import { PanelTypeService } from '@/services/panelTypeService';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-
+import PanelTypeForm, { PanelTypeFormData } from '@/components/panels/PanelTypeForm';
 import { Toaster, toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useRouter } from 'next/navigation';
-import Swal from 'sweetalert2';
-import AlertForm from '@/components/alerts/AlertForm';
-import { Alert } from '@/types/type';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
-export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+export default function PanelTypePage() {
+  const [panelTypes, setPanelTypes] = useState<PanelType[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [selectedPanelType, setSelectedPanelType] = useState<PanelType | null>(null);
+  const [currentPage, setCurrentPage] = useState(1); // Ajout du numéro de page courante
+  const [itemsPerPage] = useState(10); // Nombre d'éléments par page
   const router = useRouter();
 
   useEffect(() => {
@@ -30,68 +29,70 @@ export default function AlertsPage() {
       router.push('/');
       return;
     }
-    fetchAlerts();
+    fetchPanelTypes();
   }, []);
 
-  const fetchAlerts = async () => {
+  const fetchPanelTypes = async () => {
     try {
       setLoading(true);
-      const response = await alertService.getAlerts();
-      setAlerts(response.results);
+      const response = await PanelTypeService.getAll();
+      setPanelTypes(response);
     } catch (error) {
-      toast.error('Impossible de charger les alertes');
+      toast.error('Impossible de charger les types de panneaux');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredAlerts = alerts.filter(alert =>
-    alert.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.indication.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPanelTypes = panelTypes.filter(type =>
+    type.type?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const currentAlerts = filteredAlerts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const currentPanelTypes = filteredPanelTypes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredPanelTypes.length / itemsPerPage);
 
-  const openModal = (alert?: Alert) => {
-    setSelectedAlert(alert || null);
+  const openModal = (panelType?: PanelType) => {
+    setSelectedPanelType(panelType || null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedAlert(null);
+    setSelectedPanelType(null);
   };
 
-  const handleAlertSubmit = async (formData: Omit<Alert, 'id' | 'created_at' | 'updated_at'>) => {
+  const handlePanelTypeSubmit = async (formData: PanelTypeFormData) => {
     const promise = new Promise(async (resolve, reject) => {
       try {
-        if (selectedAlert) {
-          await alertService.updateAlert(selectedAlert.id, formData);
+        const panelTypeData = {
+          type: formData.type.trim()
+        };
+        let response;
+        if (selectedPanelType) {
+          response = await PanelTypeService.update(selectedPanelType.id, panelTypeData as PanelType);
         } else {
-          await alertService.createAlert(formData);
+          response = await PanelTypeService.create(panelTypeData as PanelType);
         }
-        await fetchAlerts();
-        closeModal();
-        resolve(true);
+        if (response) {
+          await fetchPanelTypes();
+          closeModal();
+          resolve(response);
+        } else {
+          reject(new Error('Pas de réponse de l\'API'));
+        }
       } catch (error: any) {
         reject(error);
       }
     });
-
     toast.promise(promise, {
       loading: 'Enregistrement en cours...',
-      success: selectedAlert ? 'Alerte mise à jour avec succès' : 'Alerte créée avec succès',
-      error: (err) => `Erreur: ${err?.message || 'Une erreur est survenue'}`
+      success: selectedPanelType ? 'Type mis à jour avec succès' : 'Type créé avec succès',
+      error: (err) => `Erreur: ${err?.response?.data?.detail || err.message || 'Une erreur est survenue'}`
     });
   };
 
-  const handleDeleteAlert = async (id: string) => {
+  const handleDeletePanelType = async (id: string) => {
     Swal.fire({
       title: 'Êtes-vous sûr?',
       text: "Vous ne pourrez pas revenir en arrière!",
@@ -99,24 +100,28 @@ export default function AlertsPage() {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui, supprimez-la!'
+      confirmButtonText: 'Oui, supprimez-le!'
     }).then(async (result) => {
       if (result.isConfirmed) {
         const promise = new Promise(async (resolve, reject) => {
           try {
-            await alertService.deleteAlert(id);
-            await fetchAlerts();
+            await PanelTypeService.delete(id);
+            await fetchPanelTypes();
             resolve(true);
           } catch (error) {
             reject(error);
           }
         });
-
         toast.promise(promise, {
           loading: 'Suppression en cours...',
-          success: 'Alerte supprimée avec succès',
-          error: 'Impossible de supprimer l\'alerte'
+          success: 'Type de panneau supprimé avec succès',
+          error: 'Impossible de supprimer le type de panneau'
         });
+        Swal.fire(
+          'Supprimé!',
+          'Le type de panneau a été supprimé.',
+          'success'
+        );
       }
     });
   };
@@ -125,16 +130,9 @@ export default function AlertsPage() {
     try {
       const doc = new jsPDF();
       doc.setFontSize(18);
-      doc.text('Liste des Alertes', 14, 22);
-      
-      const tableColumn = ['Email', 'Indication', 'Téléphone', 'Date de création'];
-      const tableRows = filteredAlerts.map(alert => [
-        alert.email,
-        alert.indication,
-        alert.phone,
-        new Date(alert.created_at).toLocaleDateString()
-      ]);
-
+      doc.text('Liste des Types de Panneaux', 14, 22);
+      const tableColumn = ['Type'];
+      const tableRows = filteredPanelTypes.map(type => [type.type]);
       (doc as any).autoTable({
         startY: 30,
         head: [tableColumn],
@@ -143,8 +141,7 @@ export default function AlertsPage() {
         styles: { fontSize: 8, cellPadding: 3 },
         headStyles: { fillColor: [41, 128, 185], textColor: 255 }
       });
-
-      doc.save('liste_alertes.pdf');
+      doc.save('liste_types_panneaux.pdf');
       toast.success('Export PDF réussi');
     } catch (error) {
       toast.error('Erreur lors de l\'export PDF');
@@ -161,7 +158,7 @@ export default function AlertsPage() {
       
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
-          Gestion des Alertes
+          Gestion des Types de Panneaux
         </h1>
         <div className="flex space-x-2">
           <Button
@@ -176,11 +173,10 @@ export default function AlertsPage() {
             icon={<PlusIcon />}
             onClick={() => openModal()}
           >
-            Nouvelle Alerte
+            Nouveau Type
           </Button>
         </div>
       </div>
-
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
@@ -190,57 +186,49 @@ export default function AlertsPage() {
             >
               ✕
             </button>
-            <AlertForm
-              initialData={selectedAlert}
-              onSubmit={handleAlertSubmit}
+            <PanelTypeForm
+              initialData={selectedPanelType}
+              onSubmit={handlePanelTypeSubmit}
               onCancel={closeModal}
             />
           </div>
         </div>
       )}
-
       <div className="bg-white dark:bg-neutral-800 rounded-lg shadow">
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
           <Input
             type="text"
-            placeholder="Rechercher des alertes"
+            placeholder="Rechercher des types de panneaux"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="dark:text-neutral-800"
           />
         </div>
-        
         <table className="w-full">
           <thead>
             <tr className="bg-neutral-100 dark:bg-neutral-700">
-              <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">Indication</th>
-              <th className="p-4 text-left">Téléphone</th>
-              <th className="p-4 text-left">Date de création</th>
+              <th className="p-4 text-left">Type</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {currentAlerts.map((alert) => (
+            {currentPanelTypes.map((type) => (
               <tr
-                key={alert.id}
+                key={type.id}
                 className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
               >
-                <td className="p-4">{alert.email}</td>
-                <td className="p-4">{alert.indication}</td>
-                <td className="p-4">{alert.phone}</td>
-                <td className="p-4">{new Date(alert.created_at).toLocaleDateString()}</td>
+                <td className="p-4 font-medium">{type.type}</td>
                 <td className="p-4 flex space-x-2">
                   <Button
                     variant="ghost"
                     icon={<EditIcon className="w-4 h-4" />}
-                    onClick={() => openModal(alert)}
+                    onClick={() => openModal(type)}
                     aria-label="Modifier"
                   />
                   <Button
                     variant="ghost"
                     icon={<TrashIcon className="w-4 h-4 text-red-500" />}
-                    onClick={() => handleDeleteAlert(alert.id)}
+                    onClick={() => handleDeletePanelType(type.id)}
                     aria-label="Supprimer"
                   />
                 </td>
@@ -248,22 +236,21 @@ export default function AlertsPage() {
             ))}
           </tbody>
         </table>
-
         <div className="flex justify-between p-4">
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
+            className="px-4 py-2 bg-blue-500 text-white rounded"
           >
             Précédent
           </button>
           <span>
-            Page {currentPage} sur {totalPages}
+            Page {currentPage} of {totalPages}
           </span>
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
+            className="px-4 py-2 bg-blue-500 text-white rounded"
           >
             Suivant
           </button>

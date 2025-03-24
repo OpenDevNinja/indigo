@@ -1,0 +1,75 @@
+voici le retour de la création
+on a le user qui est connecté qui a creer la campagne
+un campaign peut avoir plusieurs panel
+pour chaque panel on peut ajouter la quantité de pannel
+un campaign à une date de début et une date de fin
+
+POST {
+    {base_url
+    }
+}/panel/campaign
+{
+    "id": "dd2c9d73-db3d-40a1-a51a-f47f978b5600",
+    "user": {
+        "id": 1,
+        "email": "admin@gmail.com",
+        "first_name": "",
+        "last_name": "",
+        "role": null,
+        "phone": null,
+        "phone_indi": null
+    },
+    "customer": {
+        "id": "069e88e5-e1a5-4eec-9f21-abc4ec1c888b",
+        "fullname": "PAL",
+        "email": "traorer@gmail.com",
+        "indication": "+229",
+        "phone": "97000000",
+        "entreprise_name": "Traorer SART",
+        "city": "Calavi",
+        "type": "entreprise",
+        "created_at": "2025-01-29T17:10:08.001371Z",
+        "updated_at": "2025-01-29T17:10:08.001388Z",
+        "count_campaign": 20
+    },
+    "start_date": "2025-02-25",
+    "end_date": "2025-03-27",
+    "panel": [
+        {
+            "quantity": 10,
+            "panel": {
+                "id": "e7f57944-6eed-4fc8-8ff7-8d1647a63e57",
+                "code": "P001",
+                "surface": "surface 2",
+                "description": null,
+                "face_number": 10,
+                "sense": "Paysage"
+            }
+        },
+        {
+            "quantity": 1,
+            "panel": {
+                "id": "c4c49ea6-a62b-4b26-a5bc-c98fd8208537",
+                "code": "P002",
+                "surface": "12",
+                "description": null,
+                "face_number": 3,
+                "sense": "Sens"
+            }
+        },
+        {
+            "quantity": 1,
+            "panel": {
+                "id": "7d6ae7d1-542f-499a-b323-80558f6c58a2",
+                "code": "P003",
+                "surface": "25",
+                "description": "hhhhhhhhhhh",
+                "face_number": 1,
+                "sense": "Paysage"
+            }
+        }
+    ],
+    "created_at": "2025-01-31T09:49:28.009858Z",
+    "updated_at": "2025-01-31T09:49:28.009868Z",
+    "time_remaining": "4752000.0"
+}

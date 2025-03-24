@@ -1,27 +1,32 @@
-// src/app/alerts/page.tsx
-"use client"
+
+// CommunePage.tsx
+'use client';
+
 import { useState, useEffect } from 'react';
 import { PlusIcon, EditIcon, TrashIcon, DownloadIcon } from 'lucide-react';
-import { alertService } from '@/services/alertService';
+import { Commune, PaginatedResponse } from '@/types/type';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-
+import CommuneForm, { CommuneFormData } from '@/components/commune/CommuneForm';
 import { Toaster, toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useRouter } from 'next/navigation';
+import { CommuneService } from '@/services/communeService';
 import Swal from 'sweetalert2';
-import AlertForm from '@/components/alerts/AlertForm';
-import { Alert } from '@/types/type';
 
-export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+export default function CommunePage() {
+  const [communeData, setCommuneData] = useState<PaginatedResponse<Commune>>({
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  });
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  const [selectedCommune, setSelectedCommune] = useState<Commune | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
   const router = useRouter();
 
   useEffect(() => {
@@ -30,68 +35,65 @@ export default function AlertsPage() {
       router.push('/');
       return;
     }
-    fetchAlerts();
-  }, []);
+    fetchCommunes(currentPage);
+  }, [currentPage]);
 
-  const fetchAlerts = async () => {
+  const fetchCommunes = async (page: number) => {
     try {
       setLoading(true);
-      const response = await alertService.getAlerts();
-      setAlerts(response.results);
+      const response = await CommuneService.getAll(page);
+      setCommuneData(response);
     } catch (error) {
-      toast.error('Impossible de charger les alertes');
+      toast.error('Impossible de charger les communes');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredAlerts = alerts.filter(alert =>
-    alert.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.indication.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const currentAlerts = filteredAlerts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage);
-
-  const openModal = (alert?: Alert) => {
-    setSelectedAlert(alert || null);
+  const openModal = (commune?: Commune) => {
+    setSelectedCommune(commune || null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedAlert(null);
+    setSelectedCommune(null);
   };
 
-  const handleAlertSubmit = async (formData: Omit<Alert, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleCommuneSubmit = async (formData: CommuneFormData) => {
     const promise = new Promise(async (resolve, reject) => {
       try {
-        if (selectedAlert) {
-          await alertService.updateAlert(selectedAlert.id, formData);
+        const data = {
+          name: formData.name.trim(),
+          country_id: formData.country_id
+        };
+        let response;
+        if (selectedCommune) {
+          response = await CommuneService.update(selectedCommune.id, data);
         } else {
-          await alertService.createAlert(formData);
+          response = await CommuneService.create(data);
         }
-        await fetchAlerts();
-        closeModal();
-        resolve(true);
+        if (response) {
+          await fetchCommunes(currentPage);
+          closeModal();
+          resolve(response);
+        } else {
+          reject(new Error('Pas de réponse de l\'API'));
+        }
       } catch (error: any) {
+        console.error('Erreur détaillée:', error.response?.data || error);
         reject(error);
       }
     });
-
+    
     toast.promise(promise, {
       loading: 'Enregistrement en cours...',
-      success: selectedAlert ? 'Alerte mise à jour avec succès' : 'Alerte créée avec succès',
-      error: (err) => `Erreur: ${err?.message || 'Une erreur est survenue'}`
+      success: selectedCommune ? 'Commune mise à jour avec succès' : 'Commune créée avec succès',
+      error: (err) => `Erreur: ${err?.response?.data?.detail || err.message || 'Une erreur est survenue'}`
     });
   };
 
-  const handleDeleteAlert = async (id: string) => {
+  const handleDeleteCommune = async (id: string) => {
     Swal.fire({
       title: 'Êtes-vous sûr?',
       text: "Vous ne pourrez pas revenir en arrière!",
@@ -99,23 +101,24 @@ export default function AlertsPage() {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui, supprimez-la!'
+      confirmButtonText: 'Oui, supprimez-la!',
+      cancelButtonText: 'Annuler'
     }).then(async (result) => {
       if (result.isConfirmed) {
         const promise = new Promise(async (resolve, reject) => {
           try {
-            await alertService.deleteAlert(id);
-            await fetchAlerts();
+            await CommuneService.delete(id);
+            await fetchCommunes(currentPage);
             resolve(true);
           } catch (error) {
             reject(error);
           }
         });
-
+        
         toast.promise(promise, {
           loading: 'Suppression en cours...',
-          success: 'Alerte supprimée avec succès',
-          error: 'Impossible de supprimer l\'alerte'
+          success: 'Commune supprimée avec succès',
+          error: 'Impossible de supprimer la commune'
         });
       }
     });
@@ -125,16 +128,12 @@ export default function AlertsPage() {
     try {
       const doc = new jsPDF();
       doc.setFontSize(18);
-      doc.text('Liste des Alertes', 14, 22);
-      
-      const tableColumn = ['Email', 'Indication', 'Téléphone', 'Date de création'];
-      const tableRows = filteredAlerts.map(alert => [
-        alert.email,
-        alert.indication,
-        alert.phone,
-        new Date(alert.created_at).toLocaleDateString()
+      doc.text('Liste des Communes', 14, 22);
+      const tableColumn = ['Nom', 'Pays'];
+      const tableRows = communeData.results.map(commune => [
+        commune.name,
+        commune.country.name
       ]);
-
       (doc as any).autoTable({
         startY: 30,
         head: [tableColumn],
@@ -143,15 +142,14 @@ export default function AlertsPage() {
         styles: { fontSize: 8, cellPadding: 3 },
         headStyles: { fillColor: [41, 128, 185], textColor: 255 }
       });
-
-      doc.save('liste_alertes.pdf');
+      doc.save('liste_communes.pdf');
       toast.success('Export PDF réussi');
     } catch (error) {
       toast.error('Erreur lors de l\'export PDF');
     }
   };
 
-  if (loading) {
+  if (loading && !communeData.results.length) {
     return <div className="flex justify-center items-center h-64">Chargement...</div>;
   }
 
@@ -161,7 +159,7 @@ export default function AlertsPage() {
       
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
-          Gestion des Alertes
+          Gestion des Communes
         </h1>
         <div className="flex space-x-2">
           <Button
@@ -176,7 +174,7 @@ export default function AlertsPage() {
             icon={<PlusIcon />}
             onClick={() => openModal()}
           >
-            Nouvelle Alerte
+            Nouvelle Commune
           </Button>
         </div>
       </div>
@@ -190,9 +188,9 @@ export default function AlertsPage() {
             >
               ✕
             </button>
-            <AlertForm
-              initialData={selectedAlert}
-              onSubmit={handleAlertSubmit}
+            <CommuneForm
+              initialData={selectedCommune}
+              onSubmit={handleCommuneSubmit}
               onCancel={closeModal}
             />
           </div>
@@ -203,70 +201,66 @@ export default function AlertsPage() {
         <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
           <Input
             type="text"
-            placeholder="Rechercher des alertes"
+            placeholder="Rechercher des communes"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="dark:text-neutral-800"
           />
         </div>
-        
         <table className="w-full">
           <thead>
             <tr className="bg-neutral-100 dark:bg-neutral-700">
-              <th className="p-4 text-left">Email</th>
-              <th className="p-4 text-left">Indication</th>
-              <th className="p-4 text-left">Téléphone</th>
-              <th className="p-4 text-left">Date de création</th>
+              <th className="p-4 text-left">Nom</th>
+              <th className="p-4 text-left">Pays</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {currentAlerts.map((alert) => (
-              <tr
-                key={alert.id}
-                className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-              >
-                <td className="p-4">{alert.email}</td>
-                <td className="p-4">{alert.indication}</td>
-                <td className="p-4">{alert.phone}</td>
-                <td className="p-4">{new Date(alert.created_at).toLocaleDateString()}</td>
-                <td className="p-4 flex space-x-2">
-                  <Button
-                    variant="ghost"
-                    icon={<EditIcon className="w-4 h-4" />}
-                    onClick={() => openModal(alert)}
-                    aria-label="Modifier"
-                  />
-                  <Button
-                    variant="ghost"
-                    icon={<TrashIcon className="w-4 h-4 text-red-500" />}
-                    onClick={() => handleDeleteAlert(alert.id)}
-                    aria-label="Supprimer"
-                  />
-                </td>
-              </tr>
+            {communeData.results
+              .filter(commune => commune.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((commune) => (
+                <tr
+                  key={commune.id}
+                  className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                >
+                  <td className="p-4 font-medium">{commune.name}</td>
+                  <td className="p-4">{commune.country.name}</td>
+                  <td className="p-4 flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      icon={<EditIcon className="w-4 h-4" />}
+                      onClick={() => openModal(commune)}
+                      aria-label="Modifier"
+                    />
+                    <Button
+                      variant="ghost"
+                      icon={<TrashIcon className="w-4 h-4 text-red-500" />}
+                      onClick={() => handleDeleteCommune(commune.id)}
+                      aria-label="Supprimer"
+                    />
+                  </td>
+                </tr>
             ))}
           </tbody>
         </table>
-
         <div className="flex justify-between p-4">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
+          <Button
+            variant="secondary"
+            disabled={!communeData.previous}
+            onClick={() => setCurrentPage(prev => prev - 1)}
           >
             Précédent
-          </button>
-          <span>
-            Page {currentPage} sur {totalPages}
+          </Button>
+          <span className="py-2">
+            Page {currentPage} sur {Math.ceil(communeData.count / 10)}
           </span>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-blue-300"
+          <Button
+            variant="secondary"
+            disabled={!communeData.next}
+            onClick={() => setCurrentPage(prev => prev + 1)}
           >
             Suivant
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -42,3 +42,327 @@ indigo-guinee/
 ├── next.config.js
 └── package.json
 ```
+
+
+
+pour Department
+
+POST
+{{base_url}}/panel/department/
+{
+    "id": "651e3055-b2b6-4e69-a2c4-70d4dfb095d7",
+    "name": "Borgou"
+}
+
+GET
+{{base_url}}/panel/department/
+
+[
+    {
+        "id": "651e3055-b2b6-4e69-a2c4-70d4dfb095d7",
+        "name": "Borgou"
+    },
+    {
+        "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+        "name": "Alibori"
+    },
+    {
+        "id": "e11d5083-5d61-4e13-9389-9b3513016d48",
+        "name": "Donga"
+    }
+]
+
+GET by id
+{{base_url}}/panel/department/651e3055-b2b6-4e69-a2c4-70d4dfb095d7
+{
+    "id": "651e3055-b2b6-4e69-a2c4-70d4dfb095d7",
+    "name": "Borgou"
+}
+
+PUT
+{{base_url}}/panel/department/651e3055-b2b6-4e69-a2c4-70d4dfb095d7/
+{
+    "id": "651e3055-b2b6-4e69-a2c4-70d4dfb095d7",
+    "name": "Borgou update"
+}
+
+DELETE
+{{base_url}}/panel/department/651e3055-b2b6-4e69-a2c4-70d4dfb095d7/
+
+pour CITY
+POST
+{{base_url}}/panel/city/
+
+{
+    "id": "98e6e811-68ad-4155-8d70-325461b46d6a",
+    "name": "Gogounou",
+    "department": {
+        "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+        "name": "Alibori"
+    }
+}
+
+GET
+{{base_url}}/panel/city/
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "98e6e811-68ad-4155-8d70-325461b46d6a",
+            "name": "Gogounou",
+            "department": {
+                "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+                "name": "Alibori"
+            }
+        },
+        {
+            "id": "ece3c484-ff36-4a9b-b75b-1f6a40c43735",
+            "name": "Kandi",
+            "department": {
+                "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+                "name": "Alibori"
+            }
+        },
+        {
+            "id": "5a77ce5e-0db5-45fb-8978-a56db2397212",
+            "name": "Malanville",
+            "department": {
+                "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+                "name": "Alibori"
+            }
+        }
+    ]
+}
+
+GET by id
+{{base_url}}/panel/city/5a77ce5e-0db5-45fb-8978-a56db2397212/
+
+{
+    "id": "5a77ce5e-0db5-45fb-8978-a56db2397212",
+    "name": "Malanville",
+    "department": {
+        "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+        "name": "Alibori"
+    }
+}
+
+PATCH
+{{base_url}}/panel/city/5a77ce5e-0db5-45fb-8978-a56db2397212
+
+{
+    "id": "5a77ce5e-0db5-45fb-8978-a56db2397212",
+    "name": "Gogounou update",
+    "department": {
+        "id": "25bba514-5195-41b0-8ec2-e35b278912a6",
+        "name": "Alibori"
+    }
+}
+DELETE
+
+{{base_url}}/panel/city/5a77ce5e-0db5-45fb-8978-a56db2397212/
+
+
+pour Customer
+POST
+{{base_url}}/panel/customer/
+{
+    "id": "7a1e19ad-301d-4c79-a2ba-d1bfa2aa82bc",
+    "fullname": "IBRAHIM Haliloulaye",
+    "email": "aliloulay111ei@gmail.com",
+    "indication": "229",
+    "phone": "01254789",
+    "entreprise_name": "Na111chal",
+    "city": "Cotonou",
+    "type": "entreprise",
+    "created_at": "2025-01-15T18:32:33.002979Z",
+    "updated_at": "2025-01-15T18:32:33.003026Z",
+    "count_campaign": 0
+}
+GET
+{{base_url}}/panel/customer/
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "1b997adf-ee79-46a8-9b58-259000e36c0c",
+            "fullname": "IBRAHIM Haliloulaye",
+            "email": "aliloulayei@gmail.com",
+            "indication": "229",
+            "phone": "229",
+            "entreprise_name": "Nachal",
+            "city": "Cotonou",
+            "type": "entreprise",
+            "created_at": "2025-01-15T18:30:14.691635Z",
+            "updated_at": "2025-01-15T18:30:14.691663Z",
+            "count_campaign": 0
+        },
+        {
+            "id": "7a1e19ad-301d-4c79-a2ba-d1bfa2aa82bc",
+            "fullname": "IBRAHIM Haliloulaye",
+            "email": "aliloulay111ei@gmail.com",
+            "indication": "229",
+            "phone": "229",
+            "entreprise_name": "Na111chal",
+            "city": "Cotonou",
+            "type": "entreprise",
+            "created_at": "2025-01-15T18:32:33.002979Z",
+            "updated_at": "2025-01-15T18:32:33.003026Z",
+            "count_campaign": 0
+        }
+    ]
+}
+get by id
+{{base_url}}/panel/customer/1b997adf-ee79-46a8-9b58-259000e36c0c/
+{
+    "id": "1b997adf-ee79-46a8-9b58-259000e36c0c",
+    "fullname": "IBRAHIM Haliloulaye",
+    "email": "aliloulayei@gmail.com",
+    "indication": "229",
+    "phone": "229",
+    "entreprise_name": "Nachal",
+    "city": "Cotonou",
+    "type": "entreprise",
+    "created_at": "2025-01-15T18:30:14.691635Z",
+    "updated_at": "2025-01-15T18:30:14.691663Z",
+    "count_campaign": 0
+}
+
+Patch
+{{base_url}}/panel/customer/1b997adf-ee79-46a8-9b58-259000e36c0c/
+{
+    "id": "1b997adf-ee79-46a8-9b58-259000e36c0c",
+    "fullname": "IBRAHIM Haliloulaye update",
+    "email": "aliloulayei@gmail.com",
+    "indication": "229",
+    "phone": "229",
+    "entreprise_name": "Nachal",
+    "city": "Cotonou",
+    "type": "entreprise",
+    "created_at": "2025-01-15T18:30:14.691635Z",
+    "updated_at": "2025-01-15T18:34:33.929219Z",
+    "count_campaign": 0
+}
+
+Delete
+{{base_url}}/panel/customer/1b997adf-ee79-46a8-9b58-259000e36c0c/
+
+
+
+pour type pannel 
+
+POST
+{{base_url}}/panel/type/panel/
+{
+    "id": "c5260990-4ec2-4d19-a600-b390e44d44a9",
+    "type": "LED",
+    "created_at": "2025-01-16T10:24:51.576899Z",
+    "updated_at": "2025-01-16T10:24:51.576919Z"
+}
+
+Get 
+{{base_url}}/panel/type/panel/
+[
+    {
+        "id": "398fd8b4-be26-44a3-942f-c0f8b53f9ce3",
+        "type": null,
+        "created_at": "2025-01-16T10:23:25.681288Z",
+        "updated_at": "2025-01-16T10:23:25.681308Z"
+    },
+    {
+        "id": "c5260990-4ec2-4d19-a600-b390e44d44a9",
+        "type": "LED",
+        "created_at": "2025-01-16T10:24:51.576899Z",
+        "updated_at": "2025-01-16T10:24:51.576919Z"
+    }
+]
+
+PUt
+{{base_url}}/panel/type/panel/398fd8b4-be26-44a3-942f-c0f8b53f9ce3/
+{
+    "id": "398fd8b4-be26-44a3-942f-c0f8b53f9ce3",
+    "type": "le mise à jour",
+    "created_at": "2025-01-16T10:23:25.681288Z",
+    "updated_at": "2025-01-16T10:28:20.162911Z"
+}
+
+delete {{base_url}}/panel/type/panel/398fd8b4-be26-44a3-942f-c0f8b53f9ce3/?
+
+
+pour  Group pannel
+
+{{base_url}}/panel/group/panel/
+{
+    "id": "bc22fe21-142a-4a75-b88d-2b3035d965d0",
+    "name": "Group 1",
+    "created_at": "2025-01-23T14:03:48.624142Z",
+    "updated_at": "2025-01-23T14:03:48.624168Z"
+}
+
+GET
+{{base_url}}/panel/group/panel/
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "1486ddaf-e7d9-491e-92c8-78a446247cb5",
+            "name": null,
+            "created_at": "2025-01-23T14:02:15.708084Z",
+            "updated_at": "2025-01-23T14:02:15.708110Z"
+        },
+        {
+            "id": "bc22fe21-142a-4a75-b88d-2b3035d965d0",
+            "name": "Group 1",
+            "created_at": "2025-01-23T14:03:48.624142Z",
+            "updated_at": "2025-01-23T14:03:48.624168Z"
+        }
+    ]
+}
+
+update 
+{{base_url}}/panel/group/panel/1486ddaf-e7d9-491e-92c8-78a446247cb5/
+{
+    "id": "1486ddaf-e7d9-491e-92c8-78a446247cb5",
+    "name": "Group 2",
+    "created_at": "2025-01-23T14:02:15.708084Z",
+    "updated_at": "2025-01-23T14:06:57.763300Z"
+}
+delete 
+{{base_url}}/panel/group/panel/1486ddaf-e7d9-491e-92c8-78a446247cb5/
+
+pour country
+POST
+{{base_url}}/panel/country/
+{
+    "id": "9b4835d6-b4a5-4608-b152-afc4aa9f4fcd",
+    "name": "Bénin"
+}
+GET
+{{base_url}}/panel/country/
+[
+    {
+        "id": "fb2d58c1-0589-4433-b356-f358e70dd139",
+        "name": "Gabon"
+    },
+    {
+        "id": "9b4835d6-b4a5-4608-b152-afc4aa9f4fcd",
+        "name": "Bénin"
+    }
+]
+
+Patch 
+{{base_url}}/panel/country/fb2d58c1-0589-4433-b356-f358e70dd139/
+{
+    "id": "fb2d58c1-0589-4433-b356-f358e70dd139",
+    "name": "Niger"
+}
+
+
+delete 
+{{base_url}}/panel/country/fb2d58c1-0589-4433-b356-f358e70dd139/

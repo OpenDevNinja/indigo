@@ -98,17 +98,11 @@ const PanelForm: React.FC<PanelFormProps> = ({ initialData, onSubmit, onCancel }
     fetchData();
   }, []);
 
-  
   useEffect(() => {
     if (initialData) {
-      console.log('Initial data country:', initialData.city.commune.country);
-      
-      // S'assurer que les objets imbriqués sont correctement définis
       setFormData({
         ...initialData,
-        // Définir directement l'ID du pays pour éviter les problèmes de structure
-        country: initialData.city.commune.country.id,
-        // S'assurer que les autres objets ont la bonne structure
+        country: initialData.city.commune.country.id, // Ajoutez cette ligne
         type_pannel: {
           id: initialData.type_pannel.id,
           type: initialData.type_pannel.type
@@ -116,56 +110,10 @@ const PanelForm: React.FC<PanelFormProps> = ({ initialData, onSubmit, onCancel }
         group_pannel: {
           id: initialData.group_pannel.id,
           name: initialData.group_pannel.name
-        },
-        city: {
-          id: initialData.city.id,
-          name: initialData.city.name,
-          commune: {
-            id: initialData.city.commune.id,
-            name: initialData.city.commune.name,
-            country: {
-              id: initialData.city.commune.country.id,
-              name: initialData.city.commune.country.name
-            }
-          }
         }
       });
     }
   }, [initialData]);
-  
-// Modifiez la fonction handleSubmit pour mieux gérer l'ID du pays
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  // Obtenir un ID de pays valide, quelle que soit la source
-  const country_id = formData.country || 
-                    (formData.city.commune.country ? formData.city.commune.country.id : null);
-  
-  // Débogage
-  console.log('Submitting with country ID:', country_id);
-  console.log('City commune country:', formData.city.commune.country);
-  
-  const apiPayload: PanelApiPayload = {
-    type_pannel_id: formData.type_pannel.id,
-    group_pannel_id: formData.group_pannel.id,
-    surface: formData.surface,
-    city_id: formData.city.id,
-    commune_id: formData.city.commune.id,
-    country_id: country_id,
-    quantity: formData.quantity,
-    face_number: formData.face_number,
-    sense: formData.sense,
-    description: formData.description
-  };
-
-  // Vérifier que l'ID du pays est bien défini avant de soumettre
-  if (!apiPayload.country_id) {
-    alert("Attention: L'ID du pays n'est pas défini. Veuillez sélectionner un pays.");
-    return;
-  }
-
-  onSubmit(apiPayload);
-};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -204,7 +152,24 @@ const handleSubmit = (e: React.FormEvent) => {
     });
   };
 
-
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const apiPayload: PanelApiPayload = {
+      type_pannel_id: formData.type_pannel.id,
+      group_pannel_id: formData.group_pannel.id,
+      surface: formData.surface,
+      city_id: formData.city.id,
+      commune_id: formData.city.commune.id, // Change this to use commune ID from form data
+      country_id: formData.city.commune.country.id, // Use the country ID from the nested structure
+      quantity: formData.quantity,
+      face_number: formData.face_number,
+      sense: formData.sense,
+      description: formData.description
+    };
+  
+    onSubmit(apiPayload);
+  };
   const filteredCities = cities.filter(
     city => city.commune.id === formData.city.commune.id
   );

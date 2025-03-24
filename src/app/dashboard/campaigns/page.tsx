@@ -1,20 +1,27 @@
 'use client';
-
-import { useState } from 'react';
-import { PlusIcon, Pencil, CalendarIcon, DownloadIcon } from 'lucide-react';
-import { campaignsData, Campaign, clientsData,CampaignFormData } from '@/lib/mock-data';
+import React, { useState, useEffect } from 'react';
+import { PlusIcon, Pencil, CalendarIcon, DownloadIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import CampaignForm from '@/components/campaigns/CampaignForm';
-import { v4 as uuidv4 } from 'uuid';
+import { CampaignService } from '@/services/campaignService';
+import { Campaign, PaginatedResponse } from '@/types/type';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+const PAGE_SIZE = 10;
 
 export default function CampaignsPage() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(campaignsData);
+  const [campaignData, setCampaignData] = useState<PaginatedResponse<Campaign>>({
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  });
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     clientName: '',
     status: '',
@@ -24,14 +31,87 @@ export default function CampaignsPage() {
     startDateTo: ''
   });
 
-  const filteredCampaigns = campaigns.filter(campaign => 
-    (!filters.clientName || campaign.clientName.toLowerCase().includes(filters.clientName.toLowerCase())) &&
-    (!filters.status || campaign.status === filters.status) &&
-    (!filters.pays || campaign.pays?.toLowerCase().includes(filters.pays.toLowerCase())) &&
-    (!filters.commune || campaign.commune?.toLowerCase().includes(filters.commune.toLowerCase())) &&
-    (!filters.startDateFrom || campaign.startDate >= filters.startDateFrom) &&
-    (!filters.startDateTo || campaign.startDate <= filters.startDateTo)
-  );
+  useEffect(() => {
+    fetchCampaigns();
+  }, [currentPage, filters]); // Refetch when page or filters change
+
+  const fetchCampaigns = async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: PAGE_SIZE.toString()
+      });
+
+      // Add filters to query params if they exist
+      if (filters.clientName) {
+        queryParams.append('customer__fullname', filters.clientName);
+      }
+      if (filters.status) {
+        queryParams.append('status', filters.status);
+      }
+      if (filters.startDateFrom) {
+        queryParams.append('start_date_gte', filters.startDateFrom);
+      }
+      if (filters.startDateTo) {
+        queryParams.append('end_date_lte', filters.startDateTo);
+      }
+
+      const response = await CampaignService.getAll(queryParams);
+      
+      // Sort by created_at date in descending order
+      const sortedResults = [...response.results].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+
+      setCampaignData({
+        ...response,
+        results: sortedResults
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement des campagnes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCampaignCreate = async (campaignData: any) => {
+    try {
+      await CampaignService.create(campaignData);
+      setIsModalOpen(false);
+      // Reset to first page and refetch
+      setCurrentPage(1);
+      fetchCampaigns();
+    } catch (error) {
+      console.error('Erreur lors de la création:', error);
+    }
+  };
+
+  const handleCampaignUpdate = async (campaignData: any) => {
+    try {
+      if (editingCampaign) {
+        await CampaignService.update(editingCampaign.id, campaignData);
+        setIsModalOpen(false);
+        setEditingCampaign(null);
+        fetchCampaigns();
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo(0, 0); // Scroll to top when page changes
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const totalPages = Math.ceil(campaignData.count / PAGE_SIZE);
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -42,103 +122,51 @@ export default function CampaignsPage() {
       default: return 'bg-neutral-100 text-neutral-800';
     }
   };
+
   const exportToPDF = () => {
-    // Créer un nouveau document PDF
     const doc = new jsPDF();
-    
-    // Titre du document
     doc.setFontSize(18);
     doc.text('Liste des Campagnes', 14, 22);
 
-    // Préparer les données pour la table
     const tableColumn = [
-      'Client', 
-      'Campagne', 
-      'Date de Début', 
-      'Date de Fin', 
-      'Statut', 
-      'Panneaux',
-      'Pays',
-      'Commune'
+      'Client',
+      'Date Début',
+      'Date Fin',
+      'Code Panneaux',
+      'Quantité',
+      'Temps Restant',
+      'Créé par'
     ];
     
-    const tableRows = filteredCampaigns.map(campaign => [
-      campaign.clientName,
-      campaign.campaignName,
-      campaign.startDate,
-      campaign.endDate,
-      campaign.status,
-      campaign.panelsUsed.toString(),
-      campaign.pays || 'N/A',
-      campaign.commune || 'N/A'
+    const tableRows = campaignData.results.map(campaign => [
+      campaign.customer.fullname,
+      campaign.start_date,
+      campaign.end_date,
+      campaign.panel.map(p => p.panel.code).join(', '),
+      campaign.panel.reduce((sum, p) => sum + p.quantity, 0),
+      campaign.time_remaining,
+      campaign.user.email
     ]);
 
-    // Ajouter la table au document
     (doc as any).autoTable({
       startY: 30,
       head: [tableColumn],
       body: tableRows,
       theme: 'striped',
-      styles: { 
-        fontSize: 8,
-        cellPadding: 3 
-      },
-      headStyles: { 
-        fillColor: [41, 128, 185],
-        textColor: 255 
-      }
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 }
     });
 
-    // Enregistrer le document
     doc.save('liste_campagnes.pdf');
   };
- const handleCampaignCreation = (campaignData: CampaignFormData) => {
-  const newCampaign: Campaign = {
-    id: uuidv4(),
-    ...campaignData,
-    status: campaignData.status === 'Normal' ? 'Normal' : campaignData.status as Campaign['status'],
-    panelsUsed: campaignData.panelGroups.length,
-    pays: campaignData.panelGroups[0]?.pays || '',
-    commune: campaignData.panelGroups[0]?.commune || '',
-  };
 
-  setCampaigns([...campaigns, newCampaign]);
-  setIsModalOpen(false);
-};
-
-const handleCampaignUpdate = (campaignData: CampaignFormData) => {
-  const existingCampaign = campaigns.find(c => c.id === editingCampaign?.id);
-
-  if (existingCampaign) {
-    const updatedCampaign: Campaign = {
-      ...existingCampaign,
-      ...campaignData,
-      status: campaignData.status === 'Normal' ? 'Normal' : campaignData.status as Campaign['status'],
-      panelsUsed: campaignData.panelGroups.length,
-      pays: campaignData.panelGroups[0]?.pays ?? existingCampaign.pays,
-      commune: campaignData.panelGroups[0]?.commune ?? existingCampaign.commune,
-    };
-
-    setCampaigns(campaigns.map(campaign => 
-      campaign.id === updatedCampaign.id ? updatedCampaign : campaign
-    ));
-    setEditingCampaign(null);
-    setIsModalOpen(false);
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Chargement...</div>;
   }
-};
-  const openEditModal = (campaign: Campaign) => {
-    setEditingCampaign(campaign);
-    setIsModalOpen(true);
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
 
   return (
     <div className="space-y-6 relative">
-     <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-200">
           Gestion des Campagnes
         </h1>
@@ -163,7 +191,6 @@ const handleCampaignUpdate = (campaignData: CampaignFormData) => {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="bg-white text-bg-neutral-800 dark:bg-neutral-800 rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <Input
           type="text"
@@ -171,7 +198,7 @@ const handleCampaignUpdate = (campaignData: CampaignFormData) => {
           placeholder="Client"
           value={filters.clientName}
           onChange={handleFilterChange}
-          className='dark:text-neutral-800'
+          className="dark:text-neutral-800"
         />
         <select
           name="status"
@@ -187,28 +214,12 @@ const handleCampaignUpdate = (campaignData: CampaignFormData) => {
           <option value="Terminé">Terminé</option>
         </select>
         <Input
-          type="text"
-          name="pays"
-          placeholder="Pays"
-          value={filters.pays}
-          onChange={handleFilterChange}
-           className='dark:text-neutral-800'
-        />
-        <Input
-          type="text"
-          name="commune"
-          placeholder="Commune"
-          value={filters.commune}
-          onChange={handleFilterChange}
-           className='dark:text-neutral-800'
-        />
-        <Input
           type="date"
           name="startDateFrom"
           placeholder="Date de début (de)"
           value={filters.startDateFrom}
           onChange={handleFilterChange}
-           className='dark:text-neutral-800'
+          className="dark:text-neutral-800"
         />
         <Input
           type="date"
@@ -216,95 +227,110 @@ const handleCampaignUpdate = (campaignData: CampaignFormData) => {
           placeholder="Date de début (à)"
           value={filters.startDateTo}
           onChange={handleFilterChange}
-           className='dark:text-neutral-800'
+          className="dark:text-neutral-800"
         />
-
       </div>
 
-      {/* Modal for Campaign Form */}
-    {/* Modal for Campaign Form */}
-{isModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
-      <button 
-        onClick={() => {
-          setIsModalOpen(false);
-          setEditingCampaign(null);
-        }}
-        className="absolute top-4 right-4 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100"
-      >
-        ✕
-      </button>
-      <CampaignForm 
-      initialCampaign={editingCampaign || undefined}
-      onSubmit={editingCampaign ? handleCampaignUpdate : handleCampaignCreation}
-      onCancel={() => {
-        setIsModalOpen(false);
-        setEditingCampaign(null);
-      }}
-    />
-    </div>
-  </div>
-)}
-
-      {/* Campaigns Table */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-neutral-100 dark:bg-neutral-700">
-              <th className="p-4 text-left">Client</th>
-              <th className="p-4 text-left">Campagne</th>
-              <th className="p-4 text-left">Date de Début</th>
-              <th className="p-4 text-left">Date de Fin</th>
-              <th className="p-4 text-left">Statut</th>
-              <th className="p-4 text-left">Panneaux</th>
-              <th className="p-4 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCampaigns.map((campaign) => (
-              <tr 
-                key={campaign.id} 
-                className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
-              >
-                <td className="p-4">{campaign.clientName}</td>
-                <td className="p-4">{campaign.campaignName}</td>
-                <td className="p-4 flex items-center">
-                  <CalendarIcon className="w-4 h-4 mr-2 text-neutral-500" />
-                  {campaign.startDate}
-                </td>
-                <td className="p-4">{campaign.endDate}</td>
-                <td className="p-4">
-                  <span 
-                    className={`
-                      px-2 py-1 rounded-full text-xs 
-                      ${getStatusColor(campaign.status)}
-                    `}
-                  >
-                    {campaign.status}
-                  </span>
-                </td>
-                <td className="p-4">{campaign.panelsUsed}</td>
-                
-                <td className="p-4 flex space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    icon={<Pencil className="w-4 h-4" />} 
-                    aria-label="Détails"
-                    onClick={() => openEditModal(campaign)}
-                  />
-                </td>
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-neutral-100 dark:bg-neutral-700">
+                <th className="p-4 text-left">Client</th>
+                <th className="p-4 text-left">Date de Début</th>
+                <th className="p-4 text-left">Date de Fin</th>
+                <th className="p-4 text-left">Code Panneaux</th>
+                <th className="p-4 text-left">Quantité</th>
+                <th className="p-4 text-left">Temps Restant</th>
+                <th className="p-4 text-left">Créé par</th>
+                <th className="p-4 text-left">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {campaignData.results.map((campaign) => (
+                <tr 
+                  key={campaign.id}
+                  className="border-b border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                >
+                  <td className="p-4">{campaign.customer.fullname}</td>
+                  <td className="p-4 flex items-center">
+                    <CalendarIcon className="w-4 h-4 mr-2 text-neutral-500" />
+                    {campaign.start_date}
+                  </td>
+                  <td className="p-4">{campaign.end_date}</td>
+                  <td className="p-4">{campaign.panel.map(p => p.panel.code).join(', ')}</td>
+                  <td className="p-4">{campaign.panel.reduce((sum, p) => sum + p.quantity, 0)}</td>
+                  <td className="p-4">{campaign.time_remaining}</td>
+                  <td className="p-4">{campaign.user.email}</td>
+                  <td className="p-4">
+                    <Button
+                      variant="ghost"
+                      icon={<Pencil className="w-4 h-4" />}
+                      aria-label="Modifier"
+                      onClick={() => {
+                        setEditingCampaign(campaign);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         
-        {filteredCampaigns.length === 0 && (
+        {campaignData.results.length === 0 && (
           <div className="text-center p-4 text-neutral-500">
             Aucune campagne trouvée
           </div>
         )}
+
+        <div className="flex justify-center items-center space-x-2 p-4 border-t border-neutral-200 dark:border-neutral-700">
+          <Button
+            variant="secondary"
+            icon={<ChevronLeft className="w-4 h-4" />}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={!campaignData.previous}
+          >
+            Précédent
+          </Button>
+          <span className="text-neutral-600 dark:text-neutral-300">
+            Page {currentPage} sur {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            icon={<ChevronRight className="w-4 h-4" />}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!campaignData.next}
+          >
+            Suivant
+          </Button>
+        </div>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button 
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingCampaign(null);
+              }}
+              className="absolute top-4 right-4 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              ✕
+            </button>
+            <CampaignForm 
+              initialData={editingCampaign }
+              onSubmit={editingCampaign ? handleCampaignUpdate : handleCampaignCreate}
+              onCancel={() => {
+                setIsModalOpen(false);
+                setEditingCampaign(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

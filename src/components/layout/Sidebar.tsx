@@ -5,8 +5,13 @@ import {
   PanelLeft, 
   Megaphone, 
   User, 
-  FileText, 
-  SettingsIcon 
+  Users, 
+  SettingsIcon ,
+  Building2,
+  Globe,
+  Flag,
+  Grid2x2,
+  TableProperties
 } from 'lucide-react';
 
 const menuItems = [
@@ -14,6 +19,36 @@ const menuItems = [
     name: 'Tableau de Bord', 
     icon: HomeIcon, 
     href: '/dashboard' 
+  },
+  { 
+    name: 'Pays', 
+    icon: Globe, 
+    href: '/dashboard/country'
+  },
+  { 
+    name: 'Commune',
+    icon: Flag, 
+    href: '/dashboard/commune'
+  },
+  { 
+    name: 'Ville', 
+    icon: Building2, 
+    href: '/dashboard/city' 
+  },
+  { 
+    name: 'Groupe Panneaux', 
+    icon: Grid2x2, 
+    href: '/dashboard/group-pannel' 
+  },
+  { 
+    name: 'Type Panneaux',
+    icon: TableProperties, 
+    href: '/dashboard/type-pannel'
+  },
+  { 
+    name: 'Clients', 
+    icon: User, 
+    href: '/dashboard/clients' 
   },
   { 
     name: 'Panneaux', 
@@ -26,13 +61,13 @@ const menuItems = [
     href: '/dashboard/campaigns' 
   },
   { 
-    name: 'Clients', 
-    icon: User, 
-    href: '/dashboard/clients' 
+    name: 'Users',
+    icon: Users, 
+    href: '/dashboard/users' 
   },
  
   { 
-    name: 'Configuration', 
+    name: 'Paramètre', 
     icon: SettingsIcon, 
     href: '/dashboard/settings' 
   }
